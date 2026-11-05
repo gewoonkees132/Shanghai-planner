@@ -1,6 +1,6 @@
 # Shanghai planner
 
-**Open it: https://gewoonkees132.github.io/shanghai-planner/**
+**Open it: https://gewoonkees132.github.io/Shanghai-planner/**
 
 The typing planner for Shanghai, 5–8 Nov 2026, as one page: the plan, places, the shops map with your GPS position (Places → Shops → the location button), phrases and info. Everything is in `index.html`; nothing else loads.
 
