@@ -1175,7 +1175,7 @@ function astHTML(x){return archNow(x).map(function(s){return'<span class="ast'+(
 function archFrom(x){
   if(loc.want&&loc.fix){var d=geoKm(loc.fix,x),p=toMap(loc.fix.lat,loc.fix.lng);
     return mOrKm(d)+' '+toward(p,[x.x,x.y])+' from you'+(d<4?' · ~'+Math.max(1,Math.round(d*1.25/4.5*60))+' min walk':'')}
-  return km(x.dist.stay)+' from the hostel · '+km(x.dist.opera)+' from the opera'}
+  return km(x.dist.stay)+' from the hostel'+(x.dist.opera>=0.05?' · '+km(x.dist.opera)+' from the opera':'')}
 function navLinks(x,cls){
   var amap='https://uri.amap.com/navigation?to='+x.lng+','+x.lat+','+encodeURIComponent(x.zh)+'&mode=walk&coordinate=wgs84&callnative=1&src=planner';
   var gm='https://www.google.com/maps/dir/?api=1&travelmode=walking&destination='+encodeURIComponent(x.zh+' '+x.addr);
