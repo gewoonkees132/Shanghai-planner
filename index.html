@@ -913,7 +913,10 @@ function overlay(svg,v){
   function near(x,y,m){return x>v[0]-m&&x<v[0]+v[2]+m&&y>v[1]-m&&y<v[1]+v[3]+m}
   function sq(x,y,r){return{x:x-r,y:y-r,w:2*r,h:2*r}}
   /* nothing goes under the + and - buttons, the location button or the scale bar */
-  occ.push({x:v[0]+v[2]-58*u,y:v[1],w:58*u,h:108*u},{x:v[0]+v[2]-58*u,y:v[1]+v[3]-58*u,w:58*u,h:58*u},{x:v[0],y:v[1]+v[3]-26*u,w:96*u,h:26*u});
+  /* the scale bar: 1 km, or 500 m / 200 m when that would be over a third of the view; its whole length kept free */
+  var bar=1000,unitsKm=1000/MPU;if(unitsKm>v[2]*0.35){bar=500}if(500/MPU>v[2]*0.35){bar=200}
+  var bl=bar/MPU,bx=v[0]+12*u,by=v[1]+v[3]-14*u,bw=Math.max(96*u,bl+(12+4+38)*u);
+  occ.push({x:v[0]+v[2]-58*u,y:v[1],w:58*u,h:108*u},{x:v[0]+v[2]-58*u,y:v[1]+v[3]-58*u,w:58*u,h:58*u},{x:v[0],y:v[1]+v[3]-26*u,w:bw,h:26*u});
   /* a label next to a point: [{t,fs,wt,c}] lines; right, left, above, below, then the corners */
   function ptLabel(x,y,r,lines,cls,dest,rings,zh){
     if(zh&&LAB.some(function(q){return q.zh===zh&&Math.hypot(q.cx-x,q.cy-y)*MPU<800}))return false; /* one 豫园 is enough */
@@ -1019,7 +1022,7 @@ function overlay(svg,v){
       if(p.lead)g+='<path class="m-lead" d="M'+r1(x.x)+' '+r1(x.y)+'L'+r1(p.px)+' '+r1(p.py)+'" stroke-width="'+r1(1.3*u)+'"/><circle class="m-ac" cx="'+r1(x.x)+'" cy="'+r1(x.y)+'" r="'+r1(2.2*u)+'" stroke-width="'+r1(0.8*u)+'"/>';
       g+='<circle class="m-ac" cx="'+r1(p.px)+'" cy="'+r1(p.py)+'" r="'+r1(p.r)+'" stroke-width="'+r1((x.rank===1?2.4:1.4)*u)+'"/>';
       if(big)g+='<text class="m-an" x="'+r1(p.px)+'" y="'+r1(p.py+0.5*u)+'" font-size="'+r1((x.n>9?8.8:9.8)*u)+'">'+(as_(x)?'✓':x.n)+'</text>';
-      if(aw(x))g+='<path class="m-aw" d="'+starD(p.px+p.r*0.78,p.py-p.r*0.78,(big?5.2:3.6)*u)+'" stroke-width="'+r1(0.9*u)+'"/>';
+      if(aw(x)){var sr=(big?5.2:3.6)*u;g+='<path class="m-aw" d="'+starD(p.px+p.r*0.78,p.py-p.r*0.78,sr)+'" stroke-width="'+r1(0.9*u)+'"/>';occ.push(sq(p.px+p.r*0.78,p.py-p.r*0.78,sr))}
       o.marks.push(g+'</g>');
     });
   }
@@ -1040,7 +1043,7 @@ function overlay(svg,v){
     ptLabel(pl.x,pl.y,8.5*u,ls,'',o.top,3)});
   /* the buildings' names: the chosen one always, then the top ones and those you want, all of them close in */
   archPl.forEach(function(p){var x=p.x,sel=x.id===archSel;
-    if(sel||(z>=2&&(x.rank===1||aw(x)))||z>=3)ptLabel(p.px,p.py,p.r,[{t:x.short,fs:sel?12:10.5,wt:700}],sel?'':'s',o.top,sel?3:1)});
+    if(sel||(z>=1&&(x.rank===1||aw(x)))||(z>=2&&x.rank<=2)||z>=3)ptLabel(p.px,p.py,p.r,[{t:x.short,fs:sel?12:10.5,wt:700}],sel?'':'s',o.top,sel?3:1)});
   shopLabs.sort(function(a,b){return(b.pk?1:0)-(a.pk?1:0)});
   shopLabs.filter(function(l){return l.pk}).forEach(function(l){ptLabel(l.x,l.y,l.r,[{t:l.t,fs:10.5,wt:600}],'s',o.top)});
   function stLab(s){ptLabel(s.x,s.y,dotR,[{t:s.zh,fs:10,wt:700},{t:s.en,fs:8.4,wt:400,c:'s'}],'st',o.low,s.r===0?3:0,s.zh)}
@@ -1059,8 +1062,6 @@ function overlay(svg,v){
   if(z>=2)sts.filter(function(s){return s.r===2}).forEach(stLab);
   if(z>=3)STR.filter(function(s){return s.t===3}).forEach(stName);
   /* scale bar */
-  var bar=1000,unitsKm=1000/MPU;if(unitsKm>v[2]*0.35){bar=500}if(500/MPU>v[2]*0.35){bar=200}
-  var bl=bar/MPU,bx=v[0]+12*u,by=v[1]+v[3]-14*u;
   o.top.push('<path d="M'+r1(bx)+' '+r1(by-4*u)+'v'+r1(4*u)+'h'+r1(bl)+'v'+r1(-4*u)+'" fill="none" stroke="var(--ink2)" stroke-width="'+r1(1.5*u)+'"/>'+
     '<text class="m-lab ml s" x="'+r1(bx+bl+4*u)+'" y="'+r1(by)+'" font-size="'+r1(10*u)+'" stroke-width="'+r1(3*u)+'">'+(bar===1000?'1 km':bar+' m')+'</text>');
   return'<defs>'+defs.join('')+'</defs>'+o.low.join('')+o.marks.join('')+o.top.join('');
@@ -1242,7 +1243,7 @@ function archMapTo(id,scroll){var x=AI(id);if(!x)return;archSel=id;vbCur=null;lo
   redrawMap();renderASel();var mc=$('shopmap');if(scroll&&mc&&mapMode==='arch')mc.scrollIntoView({block:'start'})}
 /* Now: the moving façade, when its next movement is within three hours today (and not ticked Seen) */
 function veilCard(cur){
-  var now=nowAbs(),d=dayOfAbs(now),n=nowSH(),m=n.m,h=[];if(!AR||!d||(cur&&cur.x.fixed))return'';
+  var now=nowAbs(),d=dayOfAbs(now),n=nowSH(),m=n.m,h=[];if(!AR||!d||(cur&&cur.x.fixed)||m<edgesOf(d).s)return''; /* not before the day starts (Thursday: on the train) */
   AR.items.forEach(function(x){if(!x.moves||as_(x))return;var nx=null,on=null;
     x.moves.at.map(mins).forEach(function(t){if(m>=t&&m<t+x.moves.min)on=t;if(nx==null&&t>m)nx=t});
     var t=on!=null?on:nx;if(t==null||(on==null&&t-m>180)||t>=edgesOf(d).e)return;

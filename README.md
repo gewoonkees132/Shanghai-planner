@@ -2,7 +2,7 @@
 
 **Open it: https://gewoonkees132.github.io/Shanghai-planner/**
 
-The typing planner for Shanghai, 5–8 Nov 2026, as one page: the plan, places, the shops map with your GPS position (Places → Shops → the location button), phrases and info. Everything is in `index.html`; nothing else loads.
+The typing planner for Shanghai, 5–8 Nov 2026, as one page: the plan, places, the architecture map (Places → Architecture: 38 buildings from the research, the opera and Expo area first, with why each is worth seeing, what is on now such as the Fosun veil's moving times, Want / Seen, and a route from where you are), the shops map with your GPS position (Places → Shops → the location button), phrases and info. Everything is in `index.html`; nothing else loads.
 
 It is served over https so that Chrome on Android can give the map your location. The copy sent over WhatsApp opens as a local file, which Chrome never gives the location. What you type is kept in the browser, per copy: move it with Info → Notes.
 
